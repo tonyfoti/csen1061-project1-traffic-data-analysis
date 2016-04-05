@@ -3,4 +3,62 @@ title: Traffic Data Analysis
 output: html_document
 ---
 
-this is where things start :)
+## Loading necessary libraries
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+## Loading the data:
+
+```{r}
+data <- read.csv('all-semi-unique.csv')
+```
+
+## Getting basic information about the data:
+
+```{r}
+glimpse(data)
+View(data)
+names(data)
+dim(data)
+```
+
+Hence, from applying the above functions, we have a genral idea about the data: how the different records look like, the number of records (rows), the number of columns and their corresponding names.
+
+Also let's see the number of NAs for each column:
+
+```{r}
+sapply(data, function(d) sum(is.na(d)))
+```
+
+## Cleaning the data:
+
+Let's see the unique values in each column:
+
+```{r}
+sapply(data, function(d) length(unique(d)))
+```
+
+We can see now that all the "ad" columns (columns with name starting with "ad.") have only 1 unique value. Also the columns "rd.cl" and "rd.rp.type" have only 1 unique value.
+
+Those are useless columns for our analysis. So let's remove them:
+
+```{r}
+data <- select(data, -starts_with("ad."))
+data <- select(data, -c(rd.cl, rd.rp.type))
+```
+
+Now let's see the updated number of columns:
+
+```{r}
+ncol(data)
+```
+
+Let's check for duplicate rows:
+
+```{r}
+nrow(data) - nrow(unique(data))
+```
+
+We can see that there are no duplicate rows present in the dataset.
