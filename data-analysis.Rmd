@@ -62,3 +62,19 @@ nrow(data) - nrow(unique(data))
 ```
 
 We can see that there are no duplicate rows present in the dataset.
+
+## Extra cleaning of the data:
+
+Since all the data we are analysing are about user reports, then a unique identifier for those reports (report's comment id) represented in the column named "rd.rp.cmid" could be included only once for a single report in our dataset. So we won't have multiple records for the same report's comment. It's just useless. Hence, we could easily filter the data with unique values of the report's comment id "rd.rp.cmid".
+
+```{r}
+data <- distinct(data, rd.rp.cmid)
+```
+
+Now let's see the updated number of rows of the updated dataset:
+
+```{r}
+nrow(data)
+```
+
+As we can see, the amount of the dataset records (#rows) have clearly decreased.
