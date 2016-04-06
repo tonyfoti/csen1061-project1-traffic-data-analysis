@@ -8,6 +8,7 @@ output: html_document
 ```{r}
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 ```
 ## Loading the data:
 
@@ -34,7 +35,7 @@ sapply(data, function(d) sum(is.na(d)))
 
 ## Cleaning the data:
 
-Let's see the unique values in each column:
+Let's see the number of unique values in each column:
 
 ```{r}
 sapply(data, function(d) length(unique(d)))
@@ -78,3 +79,50 @@ nrow(data)
 ```
 
 As we can see, the amount of the dataset records (#rows) have clearly decreased.
+
+## Resolving combinations
+
+In one of our columns ('rd.nm'), we could see that it's a combination of two values; a main road and a sub-road from it. So we can split those values to two different columns ('main_road' and 'sub_road') so that we have the main road value alone, that may help us in further analysis.
+
+```{r}
+data <- separate(data, rd.nm, c("main_road", "sub_road"), ";")
+```
+
+## Calculating timings
+
+To be able to make time-related analysis, we will change the format of the column 'crawl_date' to a more convenient format so that we can be able to extract necessary time-related info from and use it in other calculations.
+
+```{r}
+data$crawl_date <- as.POSIXct(strptime(data$crawl_date,  format="%a %b %d %H:%M:%S UTC %Y", tz="UTC"))
+glimpse(data)
+```
+
+Now we have the crawl date in a format that we can manipulate and use to make some time calculations.
+
+We compute the reporting time (the time a report was made/submitted by a user) using the crawl date, deducting from it the time (hours and minutes) that passed since the corresponding data was crawled (presented in the respective columns 'rd.rp.hr' and 'rd.rp.mn').
+
+Hence, we respresent the newly computed value for the actual time of reporting in a new column 'report_time'.
+
+```{r}
+data$report_time = as.POSIXct(data$crawl_date - (data$rd.rp.hr*60*60) - (data$rd.rp.mn*60))
+```
+
+We may now get rid of the columns: 'rd.rp.hr' and 'rd.rp.mn'.
+
+```{r}
+data <- select(data, -c(rd.rp.hr, rd.rp.mn))
+```
+
+We do the same for the road status updating time (the time the status of a road was updated) using also the crawl date, deducting from it the time (hours and minutes) that passed since the corresponding data was crawled (presented in the respective columns 'rd.hr' and 'rd.mn').
+
+Hence, we respresent the newly computed value for the actual time of updating a status of a road in a new column 'road_time'.
+
+```{r}
+data$road_time = as.POSIXct(data$crawl_date - (data$rd.hr*60*60) - (data$rd.mn*60))
+```
+
+We may now get rid of the columns: 'rd.hr' and 'rd.mn'.
+
+```{r}
+data <- select(data, -c(rd.hr, rd.mn))
+```
