@@ -93,7 +93,7 @@ data <- separate(data, rd.nm, c("main_road", "sub_road"), ";")
 To be able to make time-related analysis, we will change the format of the column 'crawl_date' to a more convenient format so that we can be able to extract necessary time-related info from and use it in other calculations.
 
 ```{r}
-data$crawl_date <- as.POSIXct(strptime(data$crawl_date,  format="%a %b %d %H:%M:%S UTC %Y", tz="UTC"))
+data$crawl_date <- as.POSIXct(strptime(data$crawl_date,  format="%a %b %d %H:%M:%S UTC %Y", tz="Egypt"))
 glimpse(data)
 ```
 
@@ -158,3 +158,44 @@ So let's remove some of the useless columns:
 ```{r}
 data <- select(data, -c(rd.strq, rd.cmrq, rd.rp.rpImg, rd.rp.img))
 ```
+
+## Extracting the week day from the report time
+
+```{r}
+data <- mutate(data, week_day = weekdays(as.Date(data$report_time)))
+```
+
+# Calculating some frequencies
+
+## Week days frequencies:
+
+Let's count the number of rows/reports for each unique value of the different week day values we have in our data set.
+
+```{r}
+week_days_frequencies <- data %>% group_by(week_day) %>% summarise(frequency = length(week_day)) %>% arrange(frequency)
+week_days_frequencies
+```
+Let's plot the result showing the frequencies where the X-Axis is for the week days and the Y-Axis is for the frequency:
+
+```{r}
+week_days_frequencies %>% ggplot(aes(x=week_day, y=frequency)) + geom_bar(stat='identity')
+```
+
+As we can see, 'Friday' is the week day that has the least number of reports. This is normal since Friday is an off day in Egypt. And 'Thursday' is the week day that has the most number of reports. This is also normal sine 'Thursday' is the last working day, and people are used to meet or go outing after work/school, hence more usage of the streets, hence more reports and usage of the App.
+
+## Roads frequencies:
+
+Let's count the cumber of rows/reports for each unique value of the different road values we have in our dataset.
+
+```{r}
+roads_frequencies <- data %>% group_by(main_road) %>% summarise(frequency = length(main_road)) %>% arrange(desc(frequency))
+head(roads_frequencies, 10)
+```
+
+Let's plot the result showing the frequencies where the X-Axis is for the top 10 main roads and the Y-Axis is for the frequency:
+
+```{r}
+head(roads_frequencies, 10) %>% ggplot(aes(x=main_road, y=frequency)) + geom_bar(stat='identity')
+```
+
+As we can see, 'Da2ey' is the top road being reported. It is almost 3 times the frequency of the road that comes right at the second place ('Kobry 6 October'). This is maybe because it's the longest road among all others that is the most frequently used.
