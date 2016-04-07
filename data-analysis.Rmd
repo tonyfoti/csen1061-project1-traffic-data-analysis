@@ -66,7 +66,7 @@ We can see that there are no duplicate rows present in the dataset.
 
 ## Extra cleaning of the data:
 
-Since all the data we are analysing are about user reports, then a unique identifier for those reports (report's comment id) represented in the column named "rd.rp.cmid" could be included only once for a single report in our dataset. So we won't have multiple records for the same report's comment. It's just useless. Hence, we could easily filter the data with unique values of the report's comment id "rd.rp.cmid".
+Since all the data we are analysing are about user reports, then a unique identifier for those reports (report's comment id) presented in the column named "rd.rp.cmid" could be included only once for a single report in our dataset. So we won't have multiple records for the same report's comment. It's just useless. Hence, we could easily filter the data with unique values of the report's comment id "rd.rp.cmid".
 
 ```{r}
 data <- distinct(data, rd.rp.cmid)
@@ -125,4 +125,36 @@ We may now get rid of the columns: 'rd.hr' and 'rd.mn'.
 
 ```{r}
 data <- select(data, -c(rd.hr, rd.mn))
+```
+
+## Further analysis on the remaining columns
+
+**rd.ri** This column is clear to be an identifier (id) for the road 'rd.nm' (which was splitted into 'main_road' and 'sub_road').
+
+**rd.stid** This column seems to be the status (presented by id) of the road.
+
+**rd.new** This column represents a boolean value that doesn't seem to help in the analysis. (Not clear what it does).
+
+**rd.img** This column is clear to be describing a boolean value for the road image.
+
+**rd.strq** This column represents a boolean value that doesn't seem to help in the analysis. (Not clear what it does).
+
+**rd.cmrq** This column represents a boolean value that doesn't seem to help in the analysis. (Not clear what it does).
+
+**rd.rp.nm** This column is clear to be describing the reporter's username.
+
+**rd.rp.fullnm** This column is clear to be descrining the reporter's full name.
+
+**rd.rp.stid** This column seems to be the status (presented by id) of the report made by the user.
+
+**rd.rp.cm** This column seems to be the body's description of the report's comment made by the user upon reporting.
+
+**rd.rp.rpImg** This column seems to be describing an image value (presented by id) for the report.
+
+**rd.rp.img** This column seems to be describing an image value (presented by id) for the report (reporter).
+
+So let's remove some of the useless columns:
+
+```{r}
+data <- select(data, -c(rd.strq, rd.cmrq, rd.rp.rpImg, rd.rp.img))
 ```
